@@ -5,11 +5,24 @@
 
 // Tokens
 enum {
-    T_PLUS, T_MINUS, T_STAR, T_SLASH, T_INTLIT
+    T_PLUS,
+    T_MINUS,
+    T_STAR,
+    T_SLASH,
+    T_LBRACE, 
+    T_RBRACE,
+    T_LPAREN,
+    T_RPAREN,
+    T_INTLIT,
+    T_IDENTIFIER,
 };
 
 // Token structure
 struct token {
     int token;
-    int intval;
+    // Token value can be either an Integer or a string(identifer or keyword)
+    union {
+        int intval;
+        char identifierStr[20];
+    };
 };

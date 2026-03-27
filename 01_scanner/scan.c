@@ -33,6 +33,11 @@ static int next(void) {
     return c;
 }
 
+// Putback a unwanter or extra read character for future use.
+static void putback(int c){
+    Putback = c;
+}
+
 // Scan a integer literal from the input file
 static int scanint(int c){
     int k, val = 0;
@@ -45,14 +50,33 @@ static int scanint(int c){
 
     // Since we exited the while loop, we now have a non-integer character.
     // We put it back.
-    Putback = c;
+    putback(c);    
     return c;
 }
 
-// Putback a unwanter or extra read character for future use.
-static void putback(int c){
-    Putback = c;
+// Scan the identifier
+static int scanIdent(int c, char* buff, int lim) {
+    int i = 0;
+
+    // Allow only alphabets
+    while(isalpha(c)) {
+        if(lim - 1 == i){
+            printf("Identifier's length too big on line %d\n", Line);
+            exit(1);
+        } else {
+            buff[i++] = c;
+        }
+        c = next();
+    }
+
+    // Non-alphabet. Putback
+    putback(c);
+
+    // Null terminate the identifier.
+    buff[i] == '\0';
+    return i;
 }
+
 
 static int skip(void) {
     int c;
@@ -87,6 +111,18 @@ int scan(struct token *t) {
         case '/':
             t->token = T_SLASH;
             break;
+        case '{':
+            t->token = T_LBRACE;
+            break;
+        case '}':
+            t->token = T_RBRACE;
+            break;
+        case '(':
+            t->token = T_LPAREN;
+            break;
+        case ')':
+            t->token = T_RPAREN;
+            break;
         default: 
         
             // If it's a digit, scan the integer value.
@@ -94,6 +130,17 @@ int scan(struct token *t) {
                 t->intval = scanint(c);
                 t->token = T_INTLIT;
                 break;
+            } else if(isalpha(c)) {
+                t->token = T_IDENTIFIER;
+                int len = scanIdent(c, Text, TEXTLEN);
+                for(int i=0;i<len;i++){
+                    t->identifierStr[i] = Text[i]; 
+                }
+                t->identifierStr[len] = '\0'; // Null terminate otherwise I see the identifier getting overlapped with the previously scanned identifier.
+                break;
             }
+            // The character is not recognized
+            printf("Unrecognized character %c on line %d\n", c, Line);
     }
+    return 1; // Token found.
 }

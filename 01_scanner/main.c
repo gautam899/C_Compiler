@@ -18,16 +18,32 @@ static void usage(char *prog) {
 }
 
 // List of Printable tokens
-char *tokstr[] = { "+", "-", "*", "/", "intlit" };
+char *tokstr[] = { 
+    "+", 
+    "-", 
+    "*", 
+    "/", 
+    "{", 
+    "}", 
+    "(", 
+    ")",
+    "intlit",
+    "identifier"
+};
 
 static void scanfile() {
     struct token T;
     
     // Scan till we keep finding a token.
     while(scan(&T)) {
-        printf("Token %s",tokstr[T.token]);
         if(T.token == T_INTLIT) {
+            printf("Token %s",tokstr[T.token]);
             printf(", value %d", T.intval);
+        } else if(T.token == T_IDENTIFIER) {
+            printf("Token %s",tokstr[T.token]);
+            printf(", %s", T.identifierStr);
+        } else {
+            printf("Token %s",tokstr[T.token]);
         }
         printf("\n");
     }
